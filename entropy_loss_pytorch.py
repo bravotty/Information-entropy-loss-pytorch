@@ -1,3 +1,5 @@
+import torch
+import torch.nn.functional as F
 from torch import Tensor
 
 def simplex(t: Tensor, axis=1) -> bool:
@@ -17,13 +19,13 @@ class Entropy(nn.Module):
         r"""
         the definition of Entropy is - \sum p(xi) log (p(xi))
         """
-        self.eps = eps
+        self.eps    = eps
         self.reduce = reduce
 
     def forward(self, input: torch.Tensor):
         assert input.shape.__len__() >= 2
-        b, _, *s = input.shape        input = F.softmax(input, dim=1)
-
+        b, _, *s = input.shape        
+        input = F.softmax(input, dim=1)
         assert simplex(input)
         e = input * (input + self.eps).log()
         e = -1.0 * e.sum(1)
@@ -41,7 +43,6 @@ class EntropyLoss(nn.Module):
         b = F.softmax(x, dim=1) * F.log_softmax(x, dim=1)
         b = -1.0 * b.sum(1)
         return b.mean()
-
 
 ### Usage 
 # from entropy_loss_pytorch import Entropy
